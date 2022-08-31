@@ -5,25 +5,23 @@ from pixpile.pixpile import *
 
 clr = "\033[0;0m\033[H\033[2J\033[3J"
 
-def render(fps: int) -> None:
+def render(fps: int, rect_num: int) -> None:
     """Renders an "image" to the screen."""
     try:
         canvas = list(gts())
         canvas[1] += -1
-        rsizey = 5
-        rsizex = rsizey*2
-        rposy = rd(0, canvas[1]-rsizey)
-        rposx = rd(0, canvas[0]-rsizex)
-        rspeedy = 1
-        rspeedx = rspeedy*2
-        rcolor = rd(1, 15)
+        # rect = [sym[0], color[1], posx[2], posy[3], sizex[4], sizey[5], speedx[6], speedy[7], newcolor[8]]
+        rects = []
+        for r in range(1, rect_num):
+            rects.append([str(r), rd(1, 15), rd(0, canvas[0]), rd(0, canvas[1]), 10, 5, rd(1, 2)*2, rd(1, 2), False])
         while True:
             draw_rectangle(",", 233, 0, 0, canvas[0], canvas[1])
-            draw_rectangle("#", rcolor, rposx, rposy, rsizex, rsizey)
-            rposy, rspeedy, newcolor = check_collision(rposy, rsizey, rspeedy, canvas[1])
-            rposx, rspeedx, newcolor = check_collision(rposx, rsizex, rspeedx, canvas[0])
-            if newcolor:
-                rcolor = rd(1, 15)
+            for rect in rects:
+                draw_rectangle(rect[0], rect[1], rect[2], rect[3], rect[4], rect[5])
+                rect[2], rect[6], rect[8] = check_collision(rect[2], rect[4], rect[6], canvas[0])
+                rect[3], rect[7], rect[8] = check_collision(rect[3], rect[5], rect[7], canvas[1])
+                if rect[8]:
+                    rect[1] = rd(1, 255)
             canvas = list(gts())
             canvas[1] += -1
             sl(1/fps)
@@ -33,7 +31,7 @@ def render(fps: int) -> None:
 def main():
     """A function responsible for initialization"""
     print(clr, end="")
-    render(10)
+    render(int(input("FPS:")), int(input("Num of Rectangles:")))
     print(clr, end="")
 
 if __name__ == "__main__":
